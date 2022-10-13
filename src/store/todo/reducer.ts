@@ -24,6 +24,9 @@ export const TodoSlice = createSlice({
             state.isLoading = false;
             state.items = [...action.payload];
         },
+        reloadTodoItems: (state, action:PayloadAction<TodoModel[]>) => {
+            state.items = [...action.payload];
+        },
         failedloadingTodoItems: (state) => {
             state.isLoading = false;
             state.hasError = true;
@@ -46,25 +49,14 @@ export const TodoSlice = createSlice({
             state.items = [...list];
         },
         setSelectedId: (state, action:PayloadAction<string>) => {
-            state.selectedId = action.payload
-            const list = state.items.map(item => {
-                if(item.id !== action.payload) {
-                    item.isSelected = false;
-                }
-                else {
-                    item.isSelected = true;
-                }
-
-                return item;
-            });
-
-            state.items = [...list];
+            state.selectedId = action.payload;
         }
     }
 });
 
 export const {
     loadingTodoItems,
+    reloadTodoItems,
     loadedTodoItems, 
     failedloadingTodoItems,
     addTodoItem,

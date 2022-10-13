@@ -1,36 +1,36 @@
 import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
-import { TodoModel } from "../../../types";
 import { Alert, Box, Button, Collapse } from "@mui/material";
-import { useDispatch } from "react-redux";
-import { StoreDispatch, StoreState } from "../../../store";
-import { addTodoItem, updateTodoItem } from "../../../store/slice/todo";
-import { v4 as uuidv4 } from 'uuid';
-import { useSelector } from "react-redux";
+import { TodoModel } from "../../../types";
 
 interface IAddSectionPropos {
-  selectedId?: number;
+  selectedTodoItem?: TodoModel;
+  addTodo: (item: TodoModel) => void;
+  updateTodo: (item: TodoModel) => void;
 }
-const AddTodoItemSection: React.FC<IAddSectionPropos> = (props: IAddSectionPropos) => {
+const AddTodoItemSection: React.FC<IAddSectionPropos> = (
+  props: IAddSectionPropos
+) => {
+  const { selectedTodoItem, addTodo, updateTodo } = props;
+
   const [isError, setIsError] = useState({ isShow: false, text: "" });
   const [textDescription, setTextDescription] = useState("");
-  const dispatch = useDispatch<StoreDispatch>();
-
-  const { todo } = useSelector((state: StoreState) => state);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
-    if(todo.selectedId){
-      const value = todo.items.find(item => item.id === todo.selectedId)?.title;
-      setTextDescription((value)? value : '');
+    if (selectedTodoItem) {
+      const value = selectedTodoItem.title;
+      setTextDescription(value);
     }
-  }, [todo.selectedId, todo.items]);
+  }, [selectedTodoItem]);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextDescription(e.target.value);
+    setIsDisabled(e.target.value?.length === 0 || e.target.value.length > 15);
     setIsError({
-      isShow: textDescription.length > 15,
+      isShow: e.target.value?.length > 15,
       text:
-        textDescription.length > 15
+        e.target.value?.length > 15
           ? "The input value cannot be more than 15 characters"
           : "",
     });
@@ -39,24 +39,23 @@ const AddTodoItemSection: React.FC<IAddSectionPropos> = (props: IAddSectionPropo
   const handleAddOnClick = () => {
     if (!isError.isShow) {
       const todoItem: TodoModel = {
-        id: uuidv4(),
-        UserId:1,
         completed: false,
         title: textDescription,
-        isSelected: false
-      }
-      dispatch(addTodoItem(todoItem));
+        isSelected: false,
+      };
+      addTodo(todoItem);
       setTextDescription("");
     }
   };
 
   const handleUpdateOnClick = () => {
     if (!isError.isShow) {
-      const value = todo.items.find(item => item.id === todo.selectedId);
-      if(value)
-      {
-        const newItem: TodoModel = { ...value, title: textDescription};
-        dispatch(updateTodoItem(newItem));
+      if (selectedTodoItem) {
+        const newItem: TodoModel = {
+          ...selectedTodoItem,
+          title: textDescription,
+        };
+        updateTodo(newItem);
         setTextDescription("");
       }
     }
@@ -87,9 +86,7 @@ const AddTodoItemSection: React.FC<IAddSectionPropos> = (props: IAddSectionPropo
           color="primary"
           fullWidth
           onClick={handleAddOnClick}
-          disabled={
-            textDescription.length === 0 || textDescription.length > 200
-          }
+          disabled={isDisabled}
         >
           Add Item
         </Button>
@@ -102,9 +99,7 @@ const AddTodoItemSection: React.FC<IAddSectionPropos> = (props: IAddSectionPropo
           color="primary"
           fullWidth
           onClick={handleUpdateOnClick}
-          disabled={
-            textDescription.length === 0 || textDescription.length > 200
-          }
+          disabled={isDisabled}
         >
           update Item
         </Button>

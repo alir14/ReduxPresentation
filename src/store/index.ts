@@ -1,11 +1,18 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { TodoSlice } from './slice/todo';
+import { configureStore } from '@reduxjs/toolkit';
+import createSagaMiddleware from '@redux-saga/core';
+import reducer from './rootReducer';
+import sagas from './rootSaga';
 
-export const store = configureStore({
-    reducer: combineReducers({
-        todo: TodoSlice.reducer,
-    })
+const sagaMiddleware = createSagaMiddleware();
+const middleware = [sagaMiddleware];
+const isDevMode = process.env.NODE_ENV === 'development';
+
+const store = configureStore({
+    reducer,
+    devTools: isDevMode,
+    middleware
 });
 
-export type StoreDispatch = typeof store.dispatch;
-export type StoreState = ReturnType<typeof store.getState>;
+sagaMiddleware.run(sagas);
+
+export default store;

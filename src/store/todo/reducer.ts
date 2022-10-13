@@ -24,18 +24,15 @@ export const TodoSlice = createSlice({
             state.isLoading = false;
             state.items = [...action.payload];
         },
-        failedloadingTodoItems: (state) => {
+        reloadTodoItems: (state, action:PayloadAction<TodoModel[]>) => {
+            state.items = [...action.payload];
+        },
+        failedTodoItemAction: (state) => {
             state.isLoading = false;
             state.hasError = true;
         },
         addTodoItem: (state, action:PayloadAction<TodoModel>) => {
-            if(state.items){
-                state.items = [...state.items, action.payload];
-            } else {
-                const list = [] as TodoModel[];
-                list.push(action.payload)
-                state.items = [...list]
-            }
+            state.items = [...state.items, action.payload];
         },
         updateTodoItem: (state, action:PayloadAction<TodoModel>) => {
             const list = state.items.filter(item => item.id !== action.payload.id);
@@ -46,27 +43,16 @@ export const TodoSlice = createSlice({
             state.items = [...list];
         },
         setSelectedId: (state, action:PayloadAction<string>) => {
-            state.selectedId = action.payload
-            const list = state.items.map(item => {
-                if(item.id !== action.payload) {
-                    item.isSelected = false;
-                }
-                else {
-                    item.isSelected = true;
-                }
-
-                return item;
-            });
-
-            state.items = [...list];
+            state.selectedId = action.payload;
         }
     }
 });
 
 export const {
     loadingTodoItems,
+    reloadTodoItems,
     loadedTodoItems, 
-    failedloadingTodoItems,
+    failedTodoItemAction,
     addTodoItem,
     updateTodoItem,
     deleteTodoItem,

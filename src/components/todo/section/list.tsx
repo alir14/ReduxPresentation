@@ -1,33 +1,32 @@
 import { Box, Checkbox, IconButton, List, ListItem, ListItemText } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { TodoModel } from "../../../types";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteTodoItem, setSelectedId } from "../../../store/slice/todo";
-import { useDispatch } from "react-redux";
-import { StoreDispatch, StoreState } from '../../../store';
-import { useSelector } from "react-redux";
 
-const TodoListSection: React.FC = () => {
+interface TodoListSectionProps {
+  list: TodoModel[];
+  deleteTodo: (id?:string)=> void;
+  setSelectedId: (id?:string) => void;
+}
+
+const TodoListSection: React.FC<TodoListSectionProps> = (props: TodoListSectionProps) => {
   
-  const dispatch = useDispatch<StoreDispatch>();
-  const [list, setList] = useState([] as TodoModel[])
+  const {
+    list,
+    deleteTodo,
+    setSelectedId,
+  } = props;
 
-  const { todo } = useSelector((state: StoreState) => state);
-
-  useEffect(() => {
-    setList(todo.items);
-  }, [todo.items]);
-
-  const onCheckBoxChange = useCallback((isChecked: boolean, id: string) => {
+  const onCheckBoxChange = useCallback((isChecked: boolean, id?: string) => {
     if(isChecked){
-      dispatch(setSelectedId(id));
+      setSelectedId(id);
     }else {
-      dispatch(setSelectedId(''));
+      setSelectedId('');
     }
-  }, [dispatch]);
+  }, [setSelectedId]);
 
   return (
-    <List sx={{ minHeight: "300px" }}>
+    <List data-testid="todoItemsList" sx={{ minHeight: "300px" }}>
       {list?.map((item: TodoModel, index: number) => {
         return (
           <ListItem
@@ -54,7 +53,7 @@ const TodoListSection: React.FC = () => {
               </Box>
 
               <Box display="flex" component="span">
-                <IconButton onClick={() => dispatch(deleteTodoItem(item.id))}>
+                <IconButton onClick={() => deleteTodo(item.id)}>
                   <DeleteIcon />
                 </IconButton>
                 <Checkbox

@@ -27,7 +27,7 @@ export const TodoSlice = createSlice({
         reloadTodoItems: (state, action:PayloadAction<TodoModel[]>) => {
             state.items = [...action.payload];
         },
-        failedloadingTodoItems: (state) => {
+        failedTodoItemAction: (state) => {
             state.isLoading = false;
             state.hasError = true;
         },
@@ -58,7 +58,7 @@ export const {
     loadingTodoItems,
     reloadTodoItems,
     loadedTodoItems, 
-    failedloadingTodoItems,
+    failedTodoItemAction,
     addTodoItem,
     updateTodoItem,
     deleteTodoItem,

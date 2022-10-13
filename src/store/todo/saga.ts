@@ -1,4 +1,4 @@
-import { getRandomUserId } from "./../../common/helper";
+import { getID, getRandomUserId } from "./../../common/helper";
 import { TodoEntity } from "./../../entities/todosEntity";
 import { TodoModel } from "./../../types/index";
 import { put, takeLatest, call, select } from "redux-saga/effects";
@@ -6,17 +6,21 @@ import * as actions from "./actions";
 import {
   addTodoItem,
   deleteTodoItem,
-  failedloadingTodoItems,
+  failedTodoItemAction,
   loadedTodoItems,
   loadingTodoItems,
   reloadTodoItems,
   setSelectedId,
   updateTodoItem,
 } from "./reducer";
-import { fetchTodoItems } from "../../api";
+import {
+  callAddTodoItem,
+  callDeleteTodoItem,
+  fetchTodoItems,
+  callUpdateTodoItem,
+} from "../../api";
 import { TodosEntity } from "../../entities/todosEntity";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 import { TodosList } from "./selector";
 
 export function* rootSaga() {
@@ -42,7 +46,7 @@ export function* loadTodos() {
 
     yield put(loadedTodoItems(list));
   } catch (error) {
-    yield put(failedloadingTodoItems());
+    yield put(failedTodoItemAction());
   }
 }
 
@@ -52,53 +56,63 @@ export function* addTodo(action: PayloadAction<TodoModel>) {
 
     const newItem: TodoModel = {
       ...action.payload,
-      id: uuidv4(),
+      id: getID(),
       UserId: userId,
     };
 
-    yield put(addTodoItem(newItem));
+    const result: boolean = yield call(callAddTodoItem, newItem);
+
+    if (result) {
+      yield put(addTodoItem(newItem));
+    }
   } catch (error) {
-    yield put(failedloadingTodoItems());
+    yield put(failedTodoItemAction());
   }
 }
 
 export function* updateTodo(action: PayloadAction<TodoModel>) {
   try {
     const newItem = action.payload;
-    if(newItem.title !== '' || newItem.title !== undefined){
+    if (newItem.title !== "" || newItem.title !== undefined) {
+      const result: boolean = yield call(callUpdateTodoItem, newItem);
+
+      if (result) {
         yield put(updateTodoItem(newItem));
+      }
     }
   } catch (error) {
-    yield put(failedloadingTodoItems());
+    yield put(failedTodoItemAction());
   }
 }
 
 export function* deleteTodo(action: PayloadAction<string>) {
   try {
-    if(action.payload !== '' || action.payload !== undefined){
+    if (action.payload !== "" || action.payload !== undefined) {
+      const result: boolean = yield call(callDeleteTodoItem, action.payload);
+      if (result) {
         yield put(deleteTodoItem(action.payload));
+      }
     }
   } catch (error) {
-    yield put(failedloadingTodoItems());
+    yield put(failedTodoItemAction());
   }
 }
 
 export function* setSelectedTodoId(action: PayloadAction<string>) {
-    if(action.payload !== '' || action.payload !== undefined){
-        yield put(setSelectedId(action.payload));
+  if (action.payload !== "" || action.payload !== undefined) {
+    yield put(setSelectedId(action.payload));
 
-        const list: TodoModel[] = yield select(TodosList);
-        const updatedlist = list.map(item => {
-            if(item.id !== action.payload) {
-                item = {...item, isSelected: false};
-            }
-            else {
-                item = {...item, isSelected: true};
-            }
+    const list: TodoModel[] = yield select(TodosList);
+    const updatedlist = list.map((item) => {
+      if (item.id !== action.payload) {
+        item = { ...item, isSelected: false };
+      } else {
+        item = { ...item, isSelected: true };
+      }
 
-            return item;
-        });
+      return item;
+    });
 
-        yield put(reloadTodoItems(updatedlist));
-    }
+    yield put(reloadTodoItems(updatedlist));
+  }
 }

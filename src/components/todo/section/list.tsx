@@ -26,7 +26,7 @@ const TodoListSection: React.FC<TodoListSectionProps> = (props: TodoListSectionP
   }, [setSelectedId]);
 
   return (
-    <List sx={{ minHeight: "300px" }}>
+    <List data-testid="todoItemsList" sx={{ minHeight: "300px" }}>
       {list?.map((item: TodoModel, index: number) => {
         return (
           <ListItem

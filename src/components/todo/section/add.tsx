@@ -101,7 +101,7 @@ const AddTodoItemSection: React.FC<IAddSectionPropos> = (
           onClick={handleUpdateOnClick}
           disabled={isDisabled}
         >
-          update Item
+          Update Item
         </Button>
       </Box>
     </div>

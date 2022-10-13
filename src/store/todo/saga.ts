@@ -52,18 +52,20 @@ export function* loadTodos() {
 
 export function* addTodo(action: PayloadAction<TodoModel>) {
   try {
-    const userId: number = yield call(getRandomUserId, 100);
+    if (action.payload.title && action.payload.title !== "") {
+      const userId: number = yield call(getRandomUserId, 100);
 
-    const newItem: TodoModel = {
-      ...action.payload,
-      id: getID(),
-      UserId: userId,
-    };
+      const newItem: TodoModel = {
+        ...action.payload,
+        id: getID(),
+        UserId: userId,
+      };
 
-    const result: boolean = yield call(callAddTodoItem, newItem);
+      const result: boolean = yield call(callAddTodoItem, newItem);
 
-    if (result) {
-      yield put(addTodoItem(newItem));
+      if (result) {
+        yield put(addTodoItem(newItem));
+      }
     }
   } catch (error) {
     yield put(failedTodoItemAction());

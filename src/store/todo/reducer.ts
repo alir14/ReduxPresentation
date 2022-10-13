@@ -32,13 +32,7 @@ export const TodoSlice = createSlice({
             state.hasError = true;
         },
         addTodoItem: (state, action:PayloadAction<TodoModel>) => {
-            if(state.items){
-                state.items = [...state.items, action.payload];
-            } else {
-                const list = [] as TodoModel[];
-                list.push(action.payload)
-                state.items = [...list]
-            }
+            state.items = [...state.items, action.payload];
         },
         updateTodoItem: (state, action:PayloadAction<TodoModel>) => {
             const list = state.items.filter(item => item.id !== action.payload.id);
